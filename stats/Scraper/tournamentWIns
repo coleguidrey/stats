@@ -1,0 +1,41 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+from collections import defaultdict
+import numpy as np
+from collections import Counter
+
+
+Start_year = 2023
+End_year = 2023
+
+win_counts = defaultdict(int)
+
+winning_teams = []
+
+for year in range(Start_year, End_year + 1):
+    # Specify the URL you want to scrape
+    url = f'https://www.sports-reference.com/cbb/postseason/men/{year}-ncaa.html'
+
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Parse the HTML content of the page
+    soup = BeautifulSoup(response.content, 'html.parser')
+    
+    # Locate the HTML elements representing the bracket rounds and matchups
+    rounds = soup.find_all(class_="round")
+
+    winners = soup.find_all(class_="winner")
+
+    for winner in winners:
+        teams = winner.find('a').text
+        winning_teams.append(teams)
+    
+    counts = Counter(winning_teams)
+    unique = set(winning_teams)
+
+df_counts = pd.DataFrame(list(counts.items()), columns=['Team Name', 'Count'])
+df_counts['Team Name'] = df_counts['Team Name'] + ' ' f"{year}"
+
+df_counts.to_excel("tournamentwins.xlsx")

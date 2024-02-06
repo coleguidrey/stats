@@ -1,0 +1,20 @@
+# Assuming you have two lists of team names from each table
+teams_table1 = ['Team A', 'Team B', 'Team C']
+teams_table2 = ['Alpha Team', 'Beta Team', 'Gamma Team']
+
+# Step 2: Create the mapping dictionary
+name_mapping = {
+    'Uconn': 'connecticut',
+    'USC': 'southern california',
+    'Pitt': 'pittsburgh',
+    
+}
+
+# Step 3: Standardize the names in the tables
+# For table1, you replace the names directly
+standardized_teams_table1 = [name_mapping[team] for team in teams_table1]
+
+# For table2, names are already in the standardized form, but you might want to ensure consistency
+standardized_teams_table2 = [team if team in name_mapping.values() else 'Unknown' for team in teams_table2]
+
+# Now you can proceed to merge your tables using standardized_teams_table1 and standardized_teams_table2

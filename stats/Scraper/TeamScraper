@@ -1,0 +1,54 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import time 
+import random
+
+proxies = {
+  "https": "scraperapi.country_code=us.device_type=desktop:bb40d022d97a25169db44613895c24b3@proxy-server.scraperapi.com:8051"
+}
+
+# Data Range
+Start_year = 2022
+End_year = 2022
+
+all_data = []
+headers = []
+
+for year in range(Start_year, End_year + 1):
+    # Specify the URL you want to scrape
+    url = f'https://www.sports-reference.com/cbb/seasons/men/{year}-school-stats.html'
+
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Parse the HTML content of the page
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Find the table you want to scrape (you may need to inspect the page source to get the correct table identifier)
+    table = soup.find('table')
+    # Find Headers
+    for header in table.find_all('th'):
+        headers.append(header.text.strip())
+
+    # Initialize an empty list to store rows with "NCAA" in the second column
+    ncaa_rows = []
+
+    # Iterate through the rows of the table and extract data
+    for row in table.find_all('tr'):
+        # Extract data from each cell in the row
+        cells = row.find_all('td')
+        if len(cells) >= 2:  # Check if there are at least 2 cells in the row
+            # Check if the second column (index 1) contains "NCAA"
+            if "NCAA" in cells[0].text:
+                data = [cell.text.strip() for cell in cells]
+            # Append the year to the team name cell
+                data[0] = data[0].replace('\xa0NCAA', '') + f" {year}"
+                ncaa_rows.append(data)
+    time.sleep(15)
+
+    # Now, ncaa_rows contains only the rows with "NCAA" in the second column
+
+df = pd.DataFrame(ncaa_rows, columns=headers[13:50])
+
+df.to_csv("TeamStatistics2022.csv")

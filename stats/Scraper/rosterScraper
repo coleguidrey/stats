@@ -1,0 +1,43 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Data Range
+Start_year = 2023
+End_year = 2023
+
+team = ['connecticut']
+
+headers = []
+all_data = []
+
+for year in range(Start_year, End_year + 1):
+    # Specify the URL you want to scrape
+    url = 'https://www.sports-reference.com/cbb/schools/connecticut/men/2023.html'
+
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+
+    # Parse the HTML content of the page
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    table = soup.find('table', id='totals')
+
+    # find table headers
+    for header in table.find_all('th'):
+        headers.append(header.text.strip())
+
+    for row in table.find_all('tr'):
+            # Extract data from each cell in the row
+            cells = row.find_all('td')
+            
+            if len(cells) >= 2:  # Check if there are at least 2 cells in the row
+    # Check if the second column (index 1) contains "NCAA"
+                data = [cell.text.strip() for cell in cells]
+                all_data.append(data)
+    
+
+    df = pd.DataFrame(all_data, columns=headers[1:26])
+    print(df)
+df.to_excel('Connecticut Roster.xlsx')
